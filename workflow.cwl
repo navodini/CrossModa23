@@ -1,28 +1,33 @@
 #!/usr/bin/env cwl-runner
+#
+# Prediction file challenge workflow
+# Inputs:
+#   submissionId: Submission ID to run this workflow on
+#   adminUploadSynId: Synapse ID of Folder accessible by admin user/team
+#   submitterUploadSynId: Synapse ID of Folder accessible by submitter
+#   workflowSynapseId: Synapse ID of File that links to workflow archive
+#   synapseConfig: filepath to .synapseConfig file
 
 cwlVersion: v1.0
 class: Workflow
-label: CrossMoDA2023 Evaluation
-doc: >
-  BRIEF DESCRIPTION ABOUT THE CHALLENGE, e.g.
-  This workflow will run and evaluate Docker submissions to the
-  Awesome Challenge (syn123). Metrics returned are x, y, z.
 
 requirements:
   - class: StepInputExpressionRequirement
 
 inputs:
-  submissionId:
-    label: Submission ID
+  - id: submissionId
     type: int
-  submitterUploadSynId:
-    label: Synapse Folder ID accessible by the submitter
+  - id: adminUploadSynId
     type: string
-  synapseConfig:
-    label: filepath to .synapseConfig file
+  - id: submitterUploadSynId
+    type: string
+  - id: workflowSynapseId
+    type: string
+  - id: synapseConfig
     type: File
 
-outputs: {}
+# No output; everything is uploaded to Synapse.
+outputs: []
 
 steps:
 
@@ -31,7 +36,6 @@ steps:
     in:
       - id: entityid
         source: "#submitterUploadSynId"
-      # TODO: replace `valueFrom` with the admin user ID or admin team ID
       - id: principalid
         valueFrom: "3462801"
       - id: permissions
@@ -54,11 +58,10 @@ steps:
       - id: entity_id
       - id: entity_type
       - id: results
-      
+
   download_goldstandard:
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/v1.4/cwl/synapse-get-tool.cwl
     in:
-      # TODO: replace `valueFrom` with the Synapse ID to the challenge goldstandard
       - id: synapseid
         valueFrom: "syn51236191"
       - id: synapse_config
@@ -71,13 +74,15 @@ steps:
     in:
       - id: input_file
         source: "#download_submission/filepath"
+      - id: goldstandard
+        source: "#download_goldstandard/filepath"
       - id: entity_type
         source: "#download_submission/entity_type"
     out:
       - id: results
       - id: status
       - id: invalid_reasons
-  
+
   email_validation:
     run: https://raw.githubusercontent.com/Sage-Bionetworks/ChallengeWorkflowTemplates/v3.1/cwl/validate_email.cwl
     in:
@@ -123,17 +128,22 @@ steps:
   score:
     run: steps/score.cwl
     in:
+      - id: parent_id
+        source: "#submitterUploadSynId"
+      - id: synapse_config
+        source: "#synapseConfig"
       - id: input_file
         source: "#download_submission/filepath"
       - id: goldstandard
         source: "#download_goldstandard/filepath"
-      - id: check_validation_finished 
+      - id: check_validation_finished
         source: "#check_status/finished"
     out:
       - id: results
-      
+      - id: status
+
   email_score:
-    run: https://raw.githubusercontent.com/Sage-Bionetworks/ChallengeWorkflowTemplates/v3.1/cwl/score_email.cwl
+    run: steps/score_email.cwl
     in:
       - id: submissionid
         source: "#submissionId"
@@ -144,7 +154,7 @@ steps:
       # OPTIONAL: add annotations to be withheld from participants to `[]`
       # - id: private_annotations
       #   default: []
-    out: []
+    out: [finished]
 
   annotate_submission_with_output:
     run: https://raw.githubusercontent.com/Sage-Bionetworks/ChallengeWorkflowTemplates/v3.1/cwl/annotate_submission.cwl
@@ -161,5 +171,16 @@ steps:
         source: "#synapseConfig"
       - id: previous_annotation_finished
         source: "#annotate_validation_with_output/finished"
+    out: [finished]
+
+  check_final_status:
+    run: https://raw.githubusercontent.com/Sage-Bionetworks/ChallengeWorkflowTemplates/v3.1/cwl/check_status.cwl
+    in:
+      - id: status
+        source: "#score/status"
+      - id: previous_annotation_finished
+        source: "#annotate_submission_with_output/finished"
+      - id: previous_email_finished
+        source: "#email_score/finished"
     out: [finished]
  
