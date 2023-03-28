@@ -45,7 +45,7 @@ outputs:
     outputBinding:
       glob: results.json
 
-  - id: statuscd
+  - id: status
     type: string
     outputBinding:
       glob: results.json
