@@ -37,7 +37,6 @@ steps:
     in:
       - id: entityid
         source: "#submitterUploadSynId"
-      # TODO: replace `valueFrom` with the admin user ID or admin team ID
       - id: principalid
         valueFrom: "3468854"
       - id: permissions
@@ -51,7 +50,6 @@ steps:
     in:
       - id: entityid
         source: "#adminUploadSynId"
-      # TODO: replace `valueFrom` with the admin user ID or admin team ID
       - id: principalid
         valueFrom: "3468854"
       - id: permissions
@@ -87,7 +85,6 @@ steps:
   download_goldstandard:
     run: https://raw.githubusercontent.com/Sage-Bionetworks-Workflows/cwl-tool-synapseclient/v1.4/cwl/synapse-get-tool.cwl
     in:
-      # TODO: replace `valueFrom` with the Synapse ID to the challenge goldstandard
       - id: synapseid
         valueFrom: "syn51751641"
       - id: synapse_config
@@ -171,7 +168,6 @@ steps:
       # OPTIONAL: set `default` to `false` if log file should not be uploaded to Synapse
       - id: store
         default: true
-      # TODO: replace `valueFrom` with the absolute path to the data directory to be mounted
       - id: input_dir
         valueFrom: "/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/"
       - id: docker_script
