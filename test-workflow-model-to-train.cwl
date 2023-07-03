@@ -1,32 +1,30 @@
 #!/usr/bin/env cwl-runner
+#
+# Prediction file challenge workflow
+# Inputs:
+#   submissionId: Submission ID to run this workflow on
+#   adminUploadSynId: Synapse ID of Folder accessible by admin user/team
+#   submitterUploadSynId: Synapse ID of Folder accessible by submitter
+#   workflowSynapseId: Synapse ID of File that links to workflow archive
+#   synapseConfig: filepath to .synapseConfig file
 
 cwlVersion: v1.0
 class: Workflow
-label: CrossMoDA23 Evaluation
-doc: >
-  BRIEF DESCRIPTION ABOUT THE CHALLENGE, e.g.
-  This workflow will run and evaluate Docker submissions to the
-  CrossMoDA23 Challenge (syn123). Metrics returned are x, y, z.
 
 requirements:
   - class: StepInputExpressionRequirement
 
 inputs:
-  adminUploadSynId:
-    label: Synapse Folder ID accessible by an admin
-    type: string
-  submissionId:
-    label: Submission ID
+  - id: submissionId
     type: int
-  submitterUploadSynId:
-    label: Synapse Folder ID accessible by the submitter
+  - id: adminUploadSynId
     type: string
-  synapseConfig:
-    label: filepath to .synapseConfig file
+  - id: submitterUploadSynId
+    type: string
+  - id: workflowSynapseId
+    type: string
+  - id: synapseConfig
     type: File
-  workflowSynapseId:
-    label: Synapse File ID that links to the workflow
-    type: string
 
 # No output; everything is uploaded to Synapse.
 outputs: []
