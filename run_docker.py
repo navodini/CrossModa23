@@ -156,8 +156,8 @@ def main(syn, args):
                                             runtime="nvidia")
     # container = None
     
+
     
-    errors = None
 
     for cont in client.containers.list(all=True, ignore_removed=True):
         if args.submissionid in cont.name:
@@ -167,6 +167,9 @@ def main(syn, args):
             else:
                 container = cont
     # If the container doesn't exist, make sure to run the docker image
+
+    errors = None
+    
     if container is None:
         # Run as detached, logs will stream below
         print("running container")
