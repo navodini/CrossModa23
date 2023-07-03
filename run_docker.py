@@ -155,7 +155,10 @@ def main(syn, args):
                                             stderr=True,
                                             runtime="nvidia")
     # container = None
+    
+    
     errors = None
+
     for cont in client.containers.list(all=True, ignore_removed=True):
         if args.submissionid in cont.name:
             # Must remove container if the container wasn't killed properly
