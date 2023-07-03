@@ -280,6 +280,10 @@ steps:
         source: "#download_goldstandard/filepath"
       - id: check_validation_finished 
         source: "#check_status/finished"
+      - id: parent_id
+        source: "#submitterUploadSynId"
+      - id: synapse_config
+        source: "#synapseConfig"
     out:
       - id: results
       
