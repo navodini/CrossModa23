@@ -2,11 +2,11 @@
 
 cwlVersion: v1.0
 class: Workflow
-label: <YOUR CHALLENGE> Evaluation
+label: CrossMoDA23 Evaluation
 doc: >
   BRIEF DESCRIPTION ABOUT THE CHALLENGE, e.g.
   This workflow will run and evaluate Docker submissions to the
-  Awesome Challenge (syn123). Metrics returned are x, y, z.
+  CrossMoDA23 Challenge (syn123). Metrics returned are x, y, z.
 
 requirements:
   - class: StepInputExpressionRequirement
@@ -28,7 +28,8 @@ inputs:
     label: Synapse File ID that links to the workflow
     type: string
 
-outputs: {}
+# No output; everything is uploaded to Synapse.
+outputs: []
 
 steps:
 
