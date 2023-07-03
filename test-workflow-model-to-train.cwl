@@ -25,8 +25,6 @@ inputs:
     type: string
   - id: synapseConfig
     type: File
-  - id: goldstandard
-    type: File
 
 # No output; everything is uploaded to Synapse.
 outputs: []
