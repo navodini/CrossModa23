@@ -210,6 +210,7 @@ def main(syn, args):
     remove_docker_image(docker_image)
 
     output_folder = os.listdir(output_dir)
+    print(output_folder)
     # if not output_folder:
     #     raise Exception("No 'predictions.csv' file written to /output, "
     #                     "please check inference docker")
@@ -218,8 +219,22 @@ def main(syn, args):
     #                     "please check inference docker")
     # CWL has a limit of the array of files it can accept in a folder
     # therefore creating a tarball is sometimes necessary
-    tar(output_dir, 'outputs.tar.gz')
-
+    # tar(output_dir, 'outputs.tar.gz')
+    # Check for prediction files once the Docker run is complete. Tar
+    # the predictions if found; else, mark the submission as INVALID.
+    if glob.glob("*.nii.gz"):
+        os.mkdir("predictions")
+        for nifti in glob.glob("*.nii.gz"):
+            os.rename(nifti, os.path.join("predictions", nifti))
+        tar("predictions", "predictions.tar.gz")
+        status = "VALIDATED"
+        invalid_reasons = ""
+    else:
+        status = "INVALID"
+        invalid_reasons = (
+            "No *.nii.gz files found; please check whether running the "
+            "Docker container locally will result in a NIfTI file."
+        )
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
