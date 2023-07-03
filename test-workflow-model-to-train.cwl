@@ -25,7 +25,8 @@ inputs:
     type: string
   - id: synapseConfig
     type: File
-
+  - id: goldstandard
+    type: File
 # No output; everything is uploaded to Synapse.
 outputs: []
 
@@ -116,7 +117,7 @@ steps:
         source: "#validate_docker/invalid_reasons"
       # OPTIONAL: set `default` to `false` if email notification about valid submission is needed
       - id: errors_only
-        default: true
+        default: false
     out: [finished]
 
   annotate_docker_validation_with_output:
