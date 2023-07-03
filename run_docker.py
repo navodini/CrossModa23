@@ -144,16 +144,7 @@ def main(syn, args):
 
     # Look for if the container exists already, if so, reconnect
     print("checking for containers")
-    container_name = f"{args.submissionid}_case"
-    print(f"running container: {container_name}")
-    try:
-        container = client.containers.run(docker_image,
-                                            detach=True,
-                                            volumes=volumes,
-                                            name=container_name,
-                                            network_disabled=True,
-                                            stderr=True,
-                                            runtime="nvidia")
+    container = None
     errors = None
     for cont in client.containers.list(all=True, ignore_removed=True):
         if args.submissionid in cont.name:
