@@ -124,8 +124,8 @@ def main(syn, args):
     docker_image = args.docker_repository + "@" + args.docker_digest
 
     # These are the volumes that you want to mount onto your docker container
-    #output_dir = os.path.join(os.getcwd(), "output")
-    output_dir = os.getcwd()
+    output_dir = os.path.join(os.getcwd(), "output")
+    # output_dir = os.getcwd()
     input_dir = args.input_dir
 
     print("mounting volumes")
@@ -218,7 +218,7 @@ def main(syn, args):
                         "please check inference docker")
     # CWL has a limit of the array of files it can accept in a folder
     # therefore creating a tarball is sometimes necessary
-    # tar(output_dir, 'outputs.tar.gz')
+    tar(output_dir, 'outputs.tar.gz')
 
 
 if __name__ == '__main__':
