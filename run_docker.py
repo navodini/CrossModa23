@@ -222,7 +222,7 @@ def main(syn, args):
     # tar(output_dir, 'outputs.tar.gz')
     # Check for prediction files once the Docker run is complete. Tar
     # the predictions if found; else, mark the submission as INVALID.
-    if glob.glob("output_dir/*.nii.gz"):
+    if glob.glob("/output/*.nii.gz"):
         os.mkdir("predictions")
         for nifti in glob.glob("*.nii.gz"):
             os.rename(nifti, os.path.join("predictions", nifti))
