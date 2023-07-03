@@ -154,11 +154,13 @@ def main(syn, args):
                                             network_disabled=True,
                                             stderr=True,
                                             runtime="nvidia")
-    # container = None
     
-
-    
-
+    except docker.errors.APIError as err:
+        container = None
+        remove_docker_container(container_name)
+        errors = str(err) + "\n"
+    else:
+        errors = ""
     for cont in client.containers.list(all=True, ignore_removed=True):
         if args.submissionid in cont.name:
             # Must remove container if the container wasn't killed properly
@@ -168,8 +170,6 @@ def main(syn, args):
                 container = cont
     # If the container doesn't exist, make sure to run the docker image
 
-    errors = None
-    
     if container is None:
         # Run as detached, logs will stream below
         print("running container")
