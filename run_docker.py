@@ -144,7 +144,7 @@ def main(syn, args):
 
     # Look for if the container exists already, if so, reconnect
     print("checking for containers")
-    container_name = f"{args.submissionid}_case"
+    container_name = f"{args.submissionid}"
     print(f"running container: {container_name}")
     try:
         container = client.containers.run(docker_image,
@@ -222,7 +222,7 @@ def main(syn, args):
     # tar(output_dir, 'outputs.tar.gz')
     # Check for prediction files once the Docker run is complete. Tar
     # the predictions if found; else, mark the submission as INVALID.
-    if glob.glob("/output/*.nii.gz"):
+    if glob.glob("/*.nii.gz"):
         os.mkdir("predictions")
         for nifti in glob.glob("*.nii.gz"):
             os.rename(nifti, os.path.join("predictions", nifti))
