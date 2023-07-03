@@ -175,6 +175,7 @@ steps:
           location: "run_docker.py"
     out:
       - id: predictions
+      - id: results
 
   upload_results:
     run: https://raw.githubusercontent.com/Sage-Bionetworks/ChallengeWorkflowTemplates/v3.1/cwl/upload_to_synapse.cwl
@@ -238,7 +239,7 @@ steps:
         source: "#validate/invalid_reasons"
       # OPTIONAL: set `default` to `false` if email notification about valid submission is needed
       - id: errors_only
-        default: true
+        default: false
     out: [finished]
 
   annotate_validation_with_output:
