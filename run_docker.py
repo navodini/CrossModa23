@@ -222,7 +222,7 @@ def main(syn, args):
     # tar(output_dir, 'outputs.tar.gz')
     # Check for prediction files once the Docker run is complete. Tar
     # the predictions if found; else, mark the submission as INVALID.
-    if glob.glob("*.nii.gz"):
+    if glob.glob("output_dir/*.nii.gz"):
         os.mkdir("predictions")
         for nifti in glob.glob("*.nii.gz"):
             os.rename(nifti, os.path.join("predictions", nifti))
@@ -235,6 +235,13 @@ def main(syn, args):
             "No *.nii.gz files found; please check whether running the "
             "Docker container locally will result in a NIfTI file."
         )
+    with open("results.json", "w") as out:
+        out.write(json.dumps(
+            {
+                "submission_status": status,
+                "submission_errors": invalid_reasons
+            }
+        ))
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()

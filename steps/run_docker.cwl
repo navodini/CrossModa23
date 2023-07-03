@@ -59,7 +59,12 @@ requirements:
   - class: InlineJavascriptRequirement
 
 outputs:
-  predictions:
+  - id: predictions
     type: File
     outputBinding:
-      glob: predictions.tar.gz
+        glob: predictions.tar.gz
+        
+  - id: results
+    type: File
+    outputBinding:
+        glob: results.json  
