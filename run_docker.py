@@ -192,9 +192,9 @@ def main(syn, args):
                                                 detach=True, volumes=volumes,
                                                 name=container_name,
                                                 network_disabled=True,
-                                                mem_limit='12g', stderr=True,runtime="nvidia-smi",
+                                                mem_limit='12g', stderr=True,runtime="nvidia",
                             device_requests=[
-                            docker.types.DeviceRequest(device_ids=["0,2"], capabilities=[['gpu']])])
+                            docker.types.DeviceRequest(device_ids=["0"], capabilities=[['gpu']])])
             except docker.errors.APIError as err:
                 remove_docker_container(args.submissionid)
                 errors = str(err) + "\n"
