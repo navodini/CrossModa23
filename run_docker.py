@@ -128,87 +128,98 @@ def main(syn, args):
     # output_dir = os.getcwd()
     input_dir = args.input_dir
 
-    print("mounting volumes")
-    # These are the locations on the docker that you want your mounted
-    # volumes to be + permissions in docker (ro, rw)
-    # It has to be in this format '/output:rw'
-    mounted_volumes = {output_dir: '/output:rw',
-                       input_dir: '/input:ro'}
-    # All mounted volumes here in a list
-    all_volumes = [output_dir, input_dir]
-    # Mount volumes
-    volumes = {}
-    for vol in all_volumes:
-        volumes[vol] = {'bind': mounted_volumes[vol].split(":")[0],
-                        'mode': mounted_volumes[vol].split(":")[1]}
+    case_folders = [
+        '/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/crossmoda_211/',
+        '/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/crossmoda_212/',
+        '/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/crossmoda_213/',
+        '/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/crossmoda_214/',
+        '/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/crossmoda_215/'
+    ]
 
-    # # Look for if the container exists already, if so, reconnect
-    # print("checking for containers")
-    # container_name = f"{args.submissionid}"
-    # print(f"running container: {container_name}")
-    # try:
-    #     container = client.containers.run(docker_image,
-    #                                         detach=True,
-    #                                         volumes=volumes,
-    #                                         name=container_name,
-    #                                         network_disabled=True,
-    #                                         stderr=True,
-    #                                         runtime="nvidia")
-    
-    # except docker.errors.APIError as err:
-    #     container = None
-    #     remove_docker_container(container_name)
-    #     errors = str(err) + "\n"
-    # else:
-    #     errors = ""
-    # Look for if the container exists already, if so, reconnect
-    print("checking for containers")
-    container = None
-    errors = None
-    for cont in client.containers.list(all=True, ignore_removed=True):
-        if args.submissionid in cont.name:
-            # Must remove container if the container wasn't killed properly
-            if cont.status == "exited":
-                cont.remove()
-            else:
-                container = cont
-    # If the container doesn't exist, make sure to run the docker image
-    if container is None:
-        # Run as detached, logs will stream below
-        print("running container")
-        try:
-            container = client.containers.run(docker_image,
-                                              detach=True, volumes=volumes,
-                                              name=args.submissionid,
-                                              network_disabled=True,
-                                              mem_limit='12g', stderr=True,runtime="nvidia-smi",
-                           device_requests=[
-                           docker.types.DeviceRequest(device_ids=["0,2"], capabilities=[['gpu']])])
-        except docker.errors.APIError as err:
-            remove_docker_container(args.submissionid)
-            errors = str(err) + "\n"
+    for case_folder in case_folders:
+        case_id = os.path.basename(case_folder)
+        print("mounting volumes")
+        # These are the locations on the docker that you want your mounted
+        # volumes to be + permissions in docker (ro, rw)
+        # It has to be in this format '/output:rw'
+        mounted_volumes = {output_dir: '/output:rw',
+                        input_dir: '/input:ro'}
+        # All mounted volumes here in a list
+        all_volumes = [output_dir, input_dir]
+        # Mount volumes
+        volumes = {}
+        for vol in all_volumes:
+            volumes[vol] = {'bind': mounted_volumes[vol].split(":")[0],
+                            'mode': mounted_volumes[vol].split(":")[1]}
 
-    print("creating logfile")
-    # Create the logfile
-    log_filename = args.submissionid + "_log.txt"
-    # Open log file first
-    open(log_filename, 'w').close()
+        # # Look for if the container exists already, if so, reconnect
+        # print("checking for containers")
+        # container_name = f"{args.submissionid}"
+        # print(f"running container: {container_name}")
+        # try:
+        #     container = client.containers.run(docker_image,
+        #                                         detach=True,
+        #                                         volumes=volumes,
+        #                                         name=container_name,
+        #                                         network_disabled=True,
+        #                                         stderr=True,
+        #                                         runtime="nvidia")
+        
+        # except docker.errors.APIError as err:
+        #     container = None
+        #     remove_docker_container(container_name)
+        #     errors = str(err) + "\n"
+        # else:
+        #     errors = ""
+        # Look for if the container exists already, if so, reconnect
+        print("checking for containers")
+        container = None
+        errors = None
+        container_name = f"{args.submissionid}_case{case_id}"
+        for cont in client.containers.list(all=True, ignore_removed=True):
+            if args.submissionid in cont.name:
+                # Must remove container if the container wasn't killed properly
+                if cont.status == "exited":
+                    cont.remove()
+                else:
+                    container = cont
+        # If the container doesn't exist, make sure to run the docker image
+        if container is None:
+            # Run as detached, logs will stream below
+            print("running container")
+            try:
+                container = client.containers.run(docker_image,
+                                                detach=True, volumes=volumes,
+                                                name=container_name,
+                                                network_disabled=True,
+                                                mem_limit='12g', stderr=True,runtime="nvidia-smi",
+                            device_requests=[
+                            docker.types.DeviceRequest(device_ids=["0,2"], capabilities=[['gpu']])])
+            except docker.errors.APIError as err:
+                remove_docker_container(args.submissionid)
+                errors = str(err) + "\n"
 
-    # If the container doesn't exist, there are no logs to write out and
-    # no container to remove
-    if container is not None:
-        # Check if container is still running
-        while container in client.containers.list(ignore_removed=True):
+        print("creating logfile")
+        # Create the logfile
+        log_filename = args.submissionid + "_log.txt"
+        # Open log file first
+        open(log_filename, 'w').close()
+
+        # If the container doesn't exist, there are no logs to write out and
+        # no container to remove
+        if container is not None:
+            # Check if container is still running
+            while container in client.containers.list(ignore_removed=True):
+                log_text = container.logs()
+                create_log_file(log_filename, log_text=log_text)
+                store_log_file(syn, log_filename, args.parentid, store=args.store)
+                time.sleep(60)
+            # Must run again to make sure all the logs are captured
             log_text = container.logs()
             create_log_file(log_filename, log_text=log_text)
             store_log_file(syn, log_filename, args.parentid, store=args.store)
-            time.sleep(60)
-        # Must run again to make sure all the logs are captured
-        log_text = container.logs()
-        create_log_file(log_filename, log_text=log_text)
-        store_log_file(syn, log_filename, args.parentid, store=args.store)
-        # Remove container and image after being done
-        container.remove()
+            # Remove container and image after being done
+            container.remove()
 
     statinfo = os.stat(log_filename)
 
@@ -216,7 +227,7 @@ def main(syn, args):
         create_log_file(log_filename, log_text=errors)
         store_log_file(syn, log_filename, args.parentid, store=args.store)
 
-    print("finished training")
+    print("finished inference")
     # Try to remove the image
     remove_docker_image(docker_image)
 
