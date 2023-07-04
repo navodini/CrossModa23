@@ -168,7 +168,7 @@ steps:
       - id: store
         default: true
       - id: input_dir
-        valueFrom: "/home/mw22/CrossMoDA23/goldstandard_validation_5Cases/"
+        valueFrom: "/home/mw22/goldstandard_validation_5Cases"
       - id: docker_script
         default:
           class: File
