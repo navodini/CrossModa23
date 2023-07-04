@@ -142,25 +142,29 @@ def main(syn, args):
         volumes[vol] = {'bind': mounted_volumes[vol].split(":")[0],
                         'mode': mounted_volumes[vol].split(":")[1]}
 
+    # # Look for if the container exists already, if so, reconnect
+    # print("checking for containers")
+    # container_name = f"{args.submissionid}"
+    # print(f"running container: {container_name}")
+    # try:
+    #     container = client.containers.run(docker_image,
+    #                                         detach=True,
+    #                                         volumes=volumes,
+    #                                         name=container_name,
+    #                                         network_disabled=True,
+    #                                         stderr=True,
+    #                                         runtime="nvidia")
+    
+    # except docker.errors.APIError as err:
+    #     container = None
+    #     remove_docker_container(container_name)
+    #     errors = str(err) + "\n"
+    # else:
+    #     errors = ""
     # Look for if the container exists already, if so, reconnect
     print("checking for containers")
-    container_name = f"{args.submissionid}"
-    print(f"running container: {container_name}")
-    try:
-        container = client.containers.run(docker_image,
-                                            detach=True,
-                                            volumes=volumes,
-                                            name=container_name,
-                                            network_disabled=True,
-                                            stderr=True,
-                                            runtime="nvidia")
-    
-    except docker.errors.APIError as err:
-        container = None
-        remove_docker_container(container_name)
-        errors = str(err) + "\n"
-    else:
-        errors = ""
+    container = None
+    errors = None
     for cont in client.containers.list(all=True, ignore_removed=True):
         if args.submissionid in cont.name:
             # Must remove container if the container wasn't killed properly
@@ -169,7 +173,6 @@ def main(syn, args):
             else:
                 container = cont
     # If the container doesn't exist, make sure to run the docker image
-
     if container is None:
         # Run as detached, logs will stream below
         print("running container")
@@ -178,7 +181,7 @@ def main(syn, args):
                                               detach=True, volumes=volumes,
                                               name=args.submissionid,
                                               network_disabled=True,
-                                              mem_limit='6g', stderr=True)
+                                              mem_limit='12g', stderr=True,runtime="nvidia")
         except docker.errors.APIError as err:
             remove_docker_container(args.submissionid)
             errors = str(err) + "\n"
