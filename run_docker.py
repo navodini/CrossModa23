@@ -121,7 +121,7 @@ def main(syn, args):
     print(getpass.getuser())
 
     # Add docker.config file
-    docker_image = args.docker_repository #+ "@" + args.docker_digest
+    docker_image = args.docker_repository + "@" + args.docker_digest
     # pull_docker_image(docker_image)
     # These are the volumes that you want to mount onto your docker container
     output_dir = os.path.join("/home/mw22/output")
