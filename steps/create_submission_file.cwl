@@ -4,7 +4,7 @@
 #
 cwlVersion: v1.0
 class: CommandLineTool
-baseCommand: [ python3, create.py ]
+baseCommand: [ python3, create.py]
 
 hints:
   DockerRequirement:
